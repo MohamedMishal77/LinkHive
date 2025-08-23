@@ -16,24 +16,26 @@ const app = express();
 // ========================
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL, // no trailing slash
-].filter(Boolean); // remove undefined
+  process.env.FRONTEND_URL, // must not have trailing slash
+].filter(Boolean); // remove empty values
 
+console.log("✅ Allowed Origins:", allowedOrigins);
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow mobile apps / curl
-      if (allowedOrigins.indexOf(origin) === -1) {
-        return callback(new Error("CORS not allowed"), false);
+      if (!origin) return callback(null, true); // allow server-to-server / curl / mobile
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
-      return callback(null, true);
+      console.warn("⛔ Blocked by CORS:", origin);
+      return callback(new Error("CORS not allowed"));
     },
     credentials: true,
   })
 );
 
-// ✅ Handle preflight requests
+// ✅ Preflight support
 app.options("*", cors());
 
 app.use(express.json());
@@ -97,10 +99,8 @@ app.post("/api/register", async (req, res) => {
 // Global Error Handler
 // ========================
 app.use((err, req, res, next) => {
-  console.error("🔥 Unhandled Error:", err.stack);
-  res
-    .status(500)
-    .json({ success: false, message: "Internal server error" });
+  console.error("🔥 Unhandled Error:", err.message);
+  res.status(500).json({ success: false, message: "Internal server error" });
 });
 
 // ========================
