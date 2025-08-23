@@ -39,7 +39,21 @@ app.use(
 app.options("*", cors());
 
 app.use(express.json());
+
+// ========================
+// Mount Routes with Debug Logs
+// ========================
+console.log("⏳ Mounting profileRoutes...");
 app.use("/api", profileRoutes);
+
+console.log("⏳ Mounting authRoutes...");
+app.use("/api", authRoutes);
+
+console.log("⏳ Mounting userRoutes...");
+app.use("/api", userRoutes);
+
+console.log("⏳ Mounting customizationRoutes...");
+app.use("/api/customization", customizationRoutes);
 
 // ========================
 // Test DB Connection
@@ -54,13 +68,6 @@ try {
 
 // Make pool available to routes
 app.locals.pool = pool;
-
-// ========================
-// Routes
-// ========================
-app.use("/api", authRoutes);
-app.use("/api", userRoutes);
-app.use("/api/customization", customizationRoutes);
 
 // ========================
 // Registration endpoint
