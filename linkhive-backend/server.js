@@ -15,9 +15,10 @@ const app = express();
 // CORS Configuration
 // ========================
 const allowedOrigins = [
-  "http://localhost:5173",            // local dev
-  process.env.FRONTEND_URL,           // your deployed frontend (add when live)
-];
+  "http://localhost:5173",
+  process.env.FRONTEND_URL, // no trailing slash
+].filter(Boolean); // remove undefined
+
 
 app.use(
   cors({
