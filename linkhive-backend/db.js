@@ -1,21 +1,19 @@
-// db.js
 import pkg from "pg";
+import dotenv from "dotenv";
+
+dotenv.config(); // ✅ loads .env locally
+
 const { Pool } = pkg;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // required for Supabase/Render SSL
+    rejectUnauthorized: false, // required for Supabase + Render
   },
 });
 
-pool.on("connect", () => {
-  console.log("✅ Connected to PostgreSQL");
-});
-
-pool.on("error", (err) => {
-  console.error("❌ Unexpected DB error:", err);
-  process.exit(-1);
-});
+pool.connect()
+  .then(() => console.log("✅ Connected to database"))
+  .catch((err) => console.error("❌ DB Connection Error:", err));
 
 export default pool;
