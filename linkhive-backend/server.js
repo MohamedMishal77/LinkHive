@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
-import pool from "./db.js";
+import pool from "./db.js"; 
 import customizationRoutes from "./routes/customizationRoutes.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/user.js";
@@ -12,30 +12,29 @@ dotenv.config();
 const app = express();
 
 // ========================
-// Middleware
+// Middleware (CORS)
 // ========================
-
-// ✅ Explicitly allow both localhost and deployed frontend
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://linkhive-frontend.onrender.com",
+  "http://localhost:5173", // Dev
+  "https://linkhive-frontend.onrender.com", // Prod frontend
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // allow requests with no origin (e.g., mobile apps, curl)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like Postman or curl)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("❌ Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
 
 app.use(express.json());
+app.use("/api", profileRoutes);
 
 // ========================
 // Test DB Connection
@@ -48,13 +47,11 @@ try {
   process.exit(1);
 }
 
-// Make pool available to routes
 app.locals.pool = pool;
 
 // ========================
 // Routes
 // ========================
-app.use("/api", profileRoutes);
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api/customization", customizationRoutes);
@@ -66,9 +63,7 @@ app.post("/api/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
+    return res.status(400).json({ success: false, message: "All fields are required" });
   }
 
   try {
@@ -82,13 +77,9 @@ app.post("/api/register", async (req, res) => {
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
     if (err.code === "23505") {
-      return res
-        .status(409)
-        .json({ success: false, message: "Username or email already exists" });
+      return res.status(409).json({ success: false, message: "Username or email already exists" });
     }
-    res
-      .status(500)
-      .json({ success: false, message: "Server error during registration" });
+    res.status(500).json({ success: false, message: "Server error during registration" });
   }
 });
 
@@ -97,9 +88,7 @@ app.post("/api/register", async (req, res) => {
 // ========================
 app.use((err, req, res, next) => {
   console.error("🔥 Unhandled Error:", err.stack);
-  res
-    .status(500)
-    .json({ success: false, message: "Internal server error" });
+  res.status(500).json({ success: false, message: "Internal server error" });
 });
 
 // ========================
