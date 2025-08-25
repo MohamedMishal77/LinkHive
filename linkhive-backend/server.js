@@ -20,6 +20,7 @@ const allowedOrigins = [
 ].filter(Boolean); // remove empty values
 
 console.log("✅ Allowed Origins:", allowedOrigins);
+console.log("frontend url:", process.env.FRONTEND_URL);
 
 app.use(
   cors({
