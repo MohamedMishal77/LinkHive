@@ -16,7 +16,7 @@ const app = express();
 // ========================
 const allowedOrigins = [
   "http://localhost:5173", // Dev
-  "https://linkhive-frontend.onrender.com", // Prod frontend
+  "https://mylinkhive.netlify.app", // Prod frontend
 ];
 
 app.use(cors({
